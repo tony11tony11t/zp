@@ -25,13 +25,14 @@ export class Publish extends Command {
         this.log(chalk.red('There are uncommitted changes. Please commit or stash them before publishing.'));
         return;
       }
+
+      this.log(chalk.greenBright(`Bumping version...`));
   
       const versionType = flags.minor ? 'minor' : flags.major ? 'major' : 'patch';
-      this.log(chalk.greenBright(`Bumping ${versionType} version...`));
-      const newVersion = ZpCLI.runCommand(`npm version ${versionType} --no-git-tag-version`, {errorMessage: 'Failed to bump version'});
-  
+      const newVersion = ZpCLI.runCommand(`npm version ${versionType} --no-git-tag-version`, {errorMessage: 'Failed to bump version'}).replace('v', '');
       const branchName = `release/${newVersion}`;
       const existingBranches = ZpCLI.runCommand('git branch --list');
+      
       if (existingBranches.includes(branchName)) {
         this.log(chalk.red(`Branch ${branchName} already exists. Cannot create a duplicate release branch.`));
   
@@ -53,7 +54,7 @@ export class Publish extends Command {
       ZpCLI.runCommand('git add .');
   
       this.log(chalk.greenBright('Committing changes...'));
-      ZpCLI.runCommand(`git commit -m "bump: new version ${newVersion}"`);
+      ZpCLI.runCommand(`git commit -m "build: bump version to \\\`${newVersion}\\\`"`);
   
       this.log(chalk.greenBright(`Version bumped and branch created: ${branchName}`));
     }
