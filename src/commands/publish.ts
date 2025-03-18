@@ -15,8 +15,8 @@ export class Publish extends Command {
       const { flags } = await this.parse(Publish);
   
       const currentBranch = ZpCLI.runCommand('git branch --show-current', {errorMessage: 'Failed to get current branch'});
-      if (!['develop', 'main'].includes(currentBranch)) {
-        this.log(chalk.red('You must be on develop or main branch to publish.'));
+      if (currentBranch !== 'develop' && !currentBranch.startsWith('hotfix')) {
+        this.log(chalk.red('You must be on develop, or hotfix branch to publish.'));
         return;
       }
   
@@ -43,7 +43,9 @@ export class Publish extends Command {
             }
         });
         return;
-      }else {
+      }
+      
+      if(currentBranch === 'develop') {
         this.log(chalk.greenBright(`Creating release branch: ${branchName}`));
         ZpCLI.runCommand(`git checkout -b ${branchName}`);
       }
